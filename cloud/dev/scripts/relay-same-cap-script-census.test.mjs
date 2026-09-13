@@ -124,6 +124,13 @@ function resolveCellShape(cellId) {
 }
 
 describe('same-cap roll scripts accept every same-cap cell', () => {
+  it('defaults forward rolls to protocol 3 for the trusted image', () => {
+    assert.match(
+      readRelayWorkflow('deploy-relay-production-same-cap.yml'),
+      /target-rehome-protocol:[\s\S]*?default: '3'/
+    )
+  })
+
   it('parses every wave cell through the same-cap canary allowlist', () => {
     for (const cellId of SAME_CAP_CELLS) {
       for (const mode of ['isolate', 'drain', 'activate']) {
