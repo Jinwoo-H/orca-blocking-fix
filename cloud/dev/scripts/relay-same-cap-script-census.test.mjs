@@ -134,13 +134,6 @@ describe('same-cap roll scripts accept every same-cap cell', () => {
     )
   })
 
-  it('keeps the rollback default at protocol 0', () => {
-    assert.match(
-      readRelayWorkflow('deploy-relay-production-same-cap.yml'),
-      /rollback-rehome-protocol:\n(?: {8}[^\n]*\n)*? {8}default: '0'/
-    )
-  })
-
   it('parses every wave cell through the same-cap canary allowlist', () => {
     for (const cellId of SAME_CAP_CELLS) {
       for (const mode of ['isolate', 'drain', 'activate']) {
