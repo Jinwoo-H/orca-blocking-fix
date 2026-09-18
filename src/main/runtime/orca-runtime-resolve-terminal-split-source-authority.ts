@@ -14,7 +14,7 @@ import {
   ensureClaudeAgentTeamsShimDir,
   resolveClaudeAgentTeamsShimBin
 } from './claude-agent-teams-shim-env'
-import { CLAUDE_AUTH_ENV_VARS, applyClaudeEnvPatch } from '../claude-accounts/environment'
+import { applyClaudeEnvPatch } from '../claude-accounts/environment'
 
 export class OrcaRuntimeWithResolveTerminalSplitSourceAuthority extends OrcaRuntimeWithSplitPtyBackedTerminal {
   protected resolveTerminalSplitSourceAuthority(
@@ -132,13 +132,14 @@ export class OrcaRuntimeWithResolveTerminalSplitSourceAuthority extends OrcaRunt
       ...process.env,
       ...args.baseEnv
     }
+    const inheritedEnvKeys = new Set(Object.keys(baseEnv))
     const auth = args.prepareAuth && this.prepareClaudeAuth ? await this.prepareClaudeAuth() : null
-    const envToDelete = auth?.stripAuthEnv
-      ? [...CLAUDE_AUTH_ENV_VARS, 'ANTHROPIC_CUSTOM_HEADERS']
-      : undefined
     if (auth) {
       applyClaudeEnvPatch(baseEnv, auth.envPatch, { stripAuthEnv: auth.stripAuthEnv })
     }
+    const envToDelete = auth?.stripAuthEnv
+      ? [...inheritedEnvKeys].filter((key) => !(key in baseEnv))
+      : undefined
     const shimDir = await ensureClaudeAgentTeamsShimDir()
     const shimBin = resolveClaudeAgentTeamsShimBin(baseEnv)
     const launch = this.claudeAgentTeams.createLaunchEnv({
